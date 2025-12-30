@@ -60,13 +60,16 @@ const fetchData = useCallback(async () => {
   }
 }, []);
   
-  useEffect(() => {
-    if (!adminData) {
-      navigate('/login');
-    } else {
-      fetchData();
-    } // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adminData, fetchData, navigate]);
+useEffect(() => {
+  if (!adminData) {
+    navigate('/login');
+    return;
+  }
+  const loadData = async () => {
+    await fetchData();
+  };
+  loadData();
+}, [adminData, fetchData, navigate]);
 
   const handleAddBook = async (e) => {
     e.preventDefault();
@@ -102,9 +105,9 @@ const fetchData = useCallback(async () => {
       const res = await fetch("http://localhost/library-management/backend/api/update_book.php", { method: "POST", body: formData });
       const result = await res.json();
       if (result.success) { setIsEditModalOpen(false); fetchData(); setEditingBook(null); setSelectedFile(null);}
-    } catch (err) { 
+    } catch (err) {
         console.error(err);
-        alert("Update failed!"); 
+        alert("Update failed!");
     }
   };
 
@@ -277,7 +280,7 @@ return (
     <form onSubmit={isAddModalOpen ? handleAddBook : handleUpdateBook} className="space-y-5">
       <input type="text" placeholder="Title" required className="modal-input" value={isAddModalOpen ? newBook.title : editingBook?.title || ''} onChange={(e) => isAddModalOpen ? setNewBook({...newBook, title: e.target.value}) : setEditingBook({...editingBook, title: e.target.value})} />
       <input type="text" placeholder="Author" required className="modal-input" value={isAddModalOpen ? newBook.author : editingBook?.author || ''} onChange={(e) => isAddModalOpen ? setNewBook({...newBook, author: e.target.value}) : setEditingBook({...editingBook, author: e.target.value})} />
-  <textarea placeholder="Write book description here..." required className="modal-input min-h-[100px] resize-none" value={isAddModalOpen ? newBook.description : editingBook?.description || ''} onChange={(e) => isAddModalOpen ? setNewBook({...newBook, description: e.target.value}) : setEditingBook({...editingBook, description: e.target.value})} />
+  <textarea placeholder="Write book description here..." required className="modal-input min-h-25 resize-none" value={isAddModalOpen ? newBook.description : editingBook?.description || ''} onChange={(e) => isAddModalOpen ? setNewBook({...newBook, description: e.target.value}) : setEditingBook({...editingBook, description: e.target.value})} />
   <div className="grid grid-cols-2 gap-4">
     <select className="modal-input text-[10px] font-bold" value={isAddModalOpen ? newBook.category_id : editingBook?.category_id || '1'} onChange={(e) => isAddModalOpen ? setNewBook({...newBook, category_id: e.target.value}) : setEditingBook({...editingBook, category_id: e.target.value})}>
         {Object.entries(categories).map(([id, name]) => <option key={id} value={id}>{name}</option>)}
