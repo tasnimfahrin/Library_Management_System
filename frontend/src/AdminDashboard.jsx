@@ -78,6 +78,13 @@ const filteredBooks = useMemo(() => {
   );
 }, [books, searchTerm]);
 
+const filteredUsers = useMemo(() => {
+  return users.filter(user =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+}, [users, searchTerm]);
+
 const handleAddBook = async (e) => {
   e.preventDefault();
   const formData = new FormData();
@@ -168,7 +175,7 @@ return (
 </div>
 <div className="hidden md:flex items-center bg-[#121620] border border-gray-800 rounded-2xl px-5 py-3 w-80 focus-within:border-[#D4A373] transition-all">
   <Search size={18} className="text-gray-500 mr-3" />
-    <input type="text" placeholder="SEARCH BOOKS..." className="bg-transparent border-none outline-none text-[10px] font-bold tracking-widest uppercase w-full text-white placeholder-gray-700"value={searchTerm}onChange={(e) => setSearchTerm(e.target.value)}/>
+    <input type="text" placeholder={activeTab === 'dashboard' ? "SEARCH BOOKS..." : "SEARCH MEMBERS..."} className="bg-transparent border-none outline-none text-[10px] font-bold tracking-widest uppercase w-full text-white placeholder-gray-700"value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/>
 </div>
   <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-[#D4A373]"><Menu size={32} /></button>
 </header>
@@ -248,19 +255,31 @@ return (
   </tr>
 </thead>
 <tbody className="divide-y divide-gray-800/20">
-  {users.map((user, index) => (
-    <tr key={user.user_id || index} className="hover:bg-white/5 transition-all group">
-      <td className="p-8 flex items-center gap-4">
-        <img src={`http://localhost/library-management/frontend/public/profiles/${user.profile_pic || 'default_user.png'}`} className="w-10 h-10 rounded-xl object-cover border border-gray-800"alt="member" onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${user.name || 'User'}&background=D4A373&color=fff` }} />
-    <span className="font-bold">{user.name}</span>
-</td>
-<td className="p-8 text-gray-400 text-xs">{user.email}</td>
-  <td className="p-8 text-center italic text-[#D4A373] text-[10px] uppercase font-bold">{user.role}</td>
-    <td className="p-8 text-right">
-      <button onClick={() => handleDeleteUser(user.user_id)} className="text-gray-700 hover:text-red-500 p-2 transition-all"><UserMinus size={20} /></button>
-</td>
-</tr>
-))}
+  {filteredUsers.length > 0 ? (
+    filteredUsers.map((user, index) => (
+      <tr key={user.user_id || index} className="hover:bg-white/5 transition-all group">
+        <td className="p-8 flex items-center gap-4">
+          <img src={`http://localhost/library-management/frontend/public/profiles/${user.profile_pic || 'default_user.png'}`}
+            className="w-10 h-10 rounded-xl object-cover border border-gray-800"
+            alt="member" onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${user.name || 'User'}&background=D4A373&color=fff` }} />
+          <span className="font-bold">{user.name}</span>
+        </td>
+        <td className="p-8 text-gray-400 text-xs">{user.email}</td>
+        <td className="p-8 text-center italic text-[#D4A373] text-[10px] uppercase font-bold">{user.role}</td>
+        <td className="p-8 text-right">
+          <button onClick={() => handleDeleteUser(user.user_id)} className="text-gray-700 hover:text-red-500 p-2 transition-all">
+            <UserMinus size={20} />
+          </button>
+        </td>
+      </tr>
+    ))
+) : (
+  <tr>
+    <td colSpan="4" className="p-20 text-center text-gray-600 font-bold uppercase tracking-widest italic">
+      No members found matching "{searchTerm}"
+    </td>
+    </tr>
+)}
 </tbody>
 </table>
 </div>
